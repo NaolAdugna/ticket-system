@@ -1,0 +1,15 @@
+# Ignore node_modules in both backend and frontend
+/backend/node_modules/
+/frontend/node_modules/
+
+# Ignore .env file for environment variables
+/.env
+
+# Ignore .env files inside backend and frontend
+/backend/.env
+/frontend/.env
+
+# Other common ignored files and directories
+.DS_Store
+*.log
+*.tmp
