@@ -1,180 +1,150 @@
-# 🛠️ Ticket Management System
+# Frontend - Ticket System
 
-This is a Ticket Management System built with **React**, **Redux**, and **Node.js**. The system allows users to manage support tickets, view ticket summaries, and search/filter tickets. It also includes basic authentication (login/logout) functionality.
+This is the frontend part of the **Ticket System**, built with **React** and other modern front-end technologies. The frontend allows users to interact with the backend API to create, manage, and track tickets.
 
-## **Table of Contents**
+## Technologies Used
 
-- [📜 Overview](#overview)
-- [⚙️ Features](#features)
-- [🛠️ Technologies Used](#technologies-used)
-- [⚡ Installation Instructions](#installation-instructions)
-- [📁 Folder Structure](#folder-structure)
-- [📡 API Endpoints](#api-endpoints)
-- [🤝 Contributing](#contributing)
-- [📄 License](#license)
+- **React.js**: JavaScript library for building the user interface.
+- **React Router**: For client-side routing between pages.
+- **Axios**: For making HTTP requests to the backend API.
+- **TailwindCSS**: For styling the components with a utility-first approach.
+- **Redux** (if applicable): For state management (if you are using Redux).
+- **React Hook Form**: For easy and controlled form handling.
+- **Shadcn UI** (if applicable): For advanced UI components like skeleton loaders and dynamic elements.
 
-## **📜 Overview**
+## Setup
 
-The **Ticket Management System** allows users to:
+Follow these steps to set up and run the frontend locally:
 
-- View a dashboard with total ticket counts (open and closed).
-- Search and filter tickets by title.
-- View detailed ticket information (title, description, status).
-- Login and logout from the application.
+### 1. Clone the repository
 
-## **⚙️ Features**
-
-- **📊 Dashboard**: Displays a summary of tickets with counts of open and closed tickets.
-- **🔍 Search Tickets**: Allows users to search tickets by their titles.
-- **📋 Ticket Table**: Displays all tickets in a tabular format, showing their title, description, and status.
-- **🔑 Authentication**: Login and logout functionality. Users can authenticate using their credentials.
-- **🔄 State Management**: Uses **Redux** for state management of tickets and user authentication.
-- **📱 Responsive UI**: The application is designed to be responsive, meaning it works well on both desktop and mobile devices.
-- **🔄 Search and Filter**: Users can filter tickets by their title using a search bar.
-
-## **🛠️ Technologies Used**
-
-- **Frontend**:
-  - React.js ⚛️
-  - Redux Toolkit 📦 (for state management)
-  - Axios 🌐 (for API calls)
-  - Tailwind CSS 🎨 (for styling)
-- **Backend**:
-  - Node.js 🟩 (for the backend)
-  - Express.js 🌐 (for API routes)
-  - MongoDB 🗄️ (for storing tickets and user data)
-- **Authentication**:
-  - JSON Web Tokens (JWT) 🔒 for secure login and token management
-  - Redux for managing authentication state
-  - Local Storage for storing JWT tokens
-
-## **⚡ Installation Instructions**
-
-### Prerequisites
-
-Make sure you have the following installed:
-
-- **Node.js** (LTS version recommended)
-- **npm** or **yarn**
-
-### Clone the repository
+If you haven't cloned the repository yet, run:
 
 ```bash
 git clone https://github.com/NaolAdugna/ticket-system.git
-cd ticket-system
+cd ticket-system/frontend
 ```
 
-### Install dependencies
+### 2. Install dependencies
 
-For both **frontend** and **backend**, you'll need to install the dependencies:
+Install the necessary dependencies for the frontend:
 
-1. **Frontend**:
-
-   ```bash
-   cd frontend
-   npm install
-   # or
-   yarn install
-   ```
-
-2. **Backend**:
-   ```bash
-   cd backend
-   npm install
-   # or
-   yarn install
-   ```
-
-### Set up the environment variables
-
-Create a `.env` file in the root directory of the backend and frontend and add the following:
-
-- For the **backend**:
-
-  ```
-  PORT=5000
-  MONGO_URI=<your-mongodb-uri>
-  JWT_SECRET=<your-jwt-secret>
-  ```
-
-- For the **frontend**:
-  ```
-  REACT_APP_API_URL=http://localhost:5000/api  # Your backend API URL
-  ```
-
-### Running the Application
-
-1. **Start the backend server**:
-
-   ```bash
-   cd backend
-   npm start
-   # or
-   yarn start
-   ```
-
-2. **Start the frontend development server**:
-   ```bash
-   cd frontend
-   npm start
-   # or
-   yarn start
-   ```
-
-Now, open your browser and navigate to `http://localhost:3000` to view the Ticket Management System.
-
-## **📁 Folder Structure**
-
-```plaintext
-ticket-system/
-├── backend/                    # Backend API server
-│   ├── controllers/             # API route controllers
-│   ├── models/                  # Database models (MongoDB)
-│   ├── routes/                  # Express routes
-│   ├── server.js                # Main backend entry point
-│   ├── .env                     # Environment variables
-├── frontend/                    # React frontend
-│   ├── components/              # Reusable UI components
-│   ├── redux/                   # Redux slices and store
-│   ├── pages/                   # Page components (Dashboard, Login)
-│   ├── utils/                   # Utility functions and API calls (e.g., Axios config)
-│   ├── App.js                   # Main frontend entry point
-│   ├── index.js                 # App initialization and routing
-└── .gitignore                   # Git ignore file
+```bash
+npm install
 ```
 
-## **📡 API Endpoints**
+### 3. Start the development server
 
-| Endpoint       | Method | Description                                       |
-| -------------- | ------ | ------------------------------------------------- |
-| `/auth/login`  | POST   | Authenticate user and return a JWT token          |
-| `/auth/logout` | POST   | Log out user (remove JWT token from localStorage) |
-| `/tickets`     | GET    | Retrieve all tickets                              |
-| `/tickets/:id` | GET    | Retrieve a specific ticket by ID                  |
-| `/tickets`     | POST   | Create a new ticket                               |
-| `/tickets/:id` | PUT    | Update a ticket by ID                             |
-| `/tickets/:id` | DELETE | Delete a ticket by ID                             |
+Run the following command to start the frontend application:
 
-## **🤝 Contributing**
+```bash
+npm start
+```
 
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature-branch`).
-3. Make your changes and commit them (`git commit -am 'Add feature'`).
-4. Push to the branch (`git push origin feature-branch`).
-5. Create a pull request.
+The app will be available at `http://localhost:3000` by default.
 
-## **📄 License**
+## Folder Structure
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+The frontend follows this folder structure:
+
+```
+frontend/
+  ├── public/               # Static files such as images and icons
+  ├── src/                  # Source code for React app
+      ├── components/       # Reusable UI components (Buttons, Forms, etc.)
+      ├── pages/            # React pages corresponding to different routes
+      ├── services/         # API services for making HTTP requests
+      ├── store/            # Redux store (if using Redux for state management)
+      ├── utils/            # Utility functions and helpers
+      ├── App.js            # Main app component
+      ├── index.js          # Entry point of the React app
+  ├── tailwind.config.js    # TailwindCSS configuration
+  ├── postcss.config.js     # PostCSS configuration
+```
+
+### 1. `public/`
+
+Contains static assets like images, icons, and fonts.
+
+### 2. `src/`
+
+The source code folder for all React components.
+
+- **`components/`**: Contains reusable UI components like buttons, input fields, modals, etc.
+- **`pages/`**: Contains the React pages that map to different routes in your app.
+- **`services/`**: Contains functions for making API calls (using `axios` or any other method).
+- **`store/`**: Contains Redux store configuration (if Redux is used for state management).
+- **`utils/`**: Contains utility functions, helper files, or custom hooks.
+
+### 3. `App.js`
+
+The main React component that includes routing and global layout structure.
+
+### 4. `index.js`
+
+The entry point of the React app where the ReactDOM renders the app into the `#root` element in the `index.html`.
 
 ---
 
-### **Project Description**
+## Running Tests
 
-This **Ticket Management System** is designed to help businesses or organizations manage their support tickets efficiently. It includes a dashboard where administrators can monitor the total number of tickets, the number of open tickets, and the number of closed tickets. The system also allows users to search for tickets by their titles, making it easier to find specific tickets. With authentication integrated, only authorized users can access the system.
+If you have tests set up, you can run them using the following command:
 
-The backend is built using **Node.js** and **Express.js**, while the frontend leverages **React.js** with **Redux** for managing state, ensuring a smooth user experience. The UI is designed to be responsive using **Tailwind CSS**, providing a modern and user-friendly interface across various devices.
+```bash
+npm run test
+```
+
+This will run all the tests and output the results to the terminal.
+
+## Deployment
+
+The frontend can be deployed to various platforms such as **Vercel**, **Netlify**, or **GitHub Pages**.
+
+Here are some quick deployment guides:
+
+### **Deploy to Vercel**
+
+1. Push your code to GitHub.
+2. Sign in to Vercel and click "New Project".
+3. Select your GitHub repository and follow the deployment steps.
 
 ---
 
-You can use this structure and make further customizations to match the specifics of your ticket system. This version incorporates **icons** to make the README more visually appealing, and it also reflects the updated repo structure with the `frontend` and `backend` folders.
+## Environment Variables
+
+If your app requires environment variables (like API base URLs), create a `.env` file in the root of the `frontend` directory:
+
+Example:
+
+```env
+REACT_APP_API_URL=http://localhost:5000/api
+```
+
+Be sure to replace the URL with the actual backend API URL once you deploy the app.
+
+---
+
+## Troubleshooting
+
+- **Port Conflicts**: If port `3000` is already in use, you can change the port by running:
+
+  ```bash
+  PORT=3001 npm start
+  ```
+
+- **API Requests**: Ensure that the backend server is running before making API requests from the frontend.
+
+---
+
+## Contributing
+
+If you'd like to contribute to the development of the frontend, follow these steps:
+
+1. Fork this repository and create your branch from `main`.
+2. Implement your changes.
+3. Run tests to ensure everything works.
+4. Create a pull request with a detailed description of your changes.
+
+---
+
+This README provides a comprehensive overview of the **frontend** folder in your **Ticket System** project. Let me know if you need more details or adjustments!
