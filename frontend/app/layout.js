@@ -12,9 +12,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Digital Menu Ethioapia",
+  title: "Ticketing Management System",
   description:
-    "Digital Menu Ethiopia empower restaurant found in Ethiopia to create digital menu for their customers. and also help customers to order food online.",
+    "Ticketing Management System is a platform that helps businesses manage and resolve customer support tickets efficiently.",
 };
 
 export default function RootLayout({ children }) {
