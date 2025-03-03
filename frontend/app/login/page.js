@@ -1,30 +1,58 @@
-"use client"; // Ensure the component runs on the client side
+"use client";
+
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "@/src/redux/slices/authSlice";
 import { useRouter } from "next/navigation";
-import toast, { Toaster } from "react-hot-toast"; // Import hot-toast
+import toast from "react-hot-toast";
+import { motion } from "framer-motion";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const { loading, error, token } = useSelector((state) => state.auth); // Use `token` instead of `user`
+  const { loading, token } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    // Redirect to dashboard after successful login
     if (token) {
-      toast.success("Login successful! Redirecting..."); // Success toast
+      toast.success("Login successful! Redirecting to dashboard...");
       setTimeout(() => {
         router.push("/dashboard");
-      }, 1500); // Small delay for better UX
+      }, 500);
     }
   }, [token, router]);
 
+  const validateInputs = () => {
+    let errors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!password.trim()) {
+      errors.password = "Password is required";
+      toast.error("Password is required");
+    } else if (password.length < 6) {
+      errors.password = "Password must be at least 6 characters long";
+      toast.error("Password must be at least 6 characters long");
+    }
+
+    if (!email.trim()) {
+      errors.email = "Email is required";
+      toast.error("Email is required");
+    } else if (!emailRegex.test(email)) {
+      errors.email = "Invalid email format";
+      toast.error("Invalid email format");
+    }
+
+    setErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateInputs()) return;
+
     const result = await dispatch(loginUser({ email, password }));
 
     if (loginUser.fulfilled.match(result)) {
@@ -36,15 +64,24 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-md transform transition-all hover:scale-105">
+      <motion.div
+        className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-md transform transition-all "
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
           Welcome Back!
         </h1>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
+              className="block text-sm font-medium text-gray-900"
             >
               Email
             </label>
@@ -54,11 +91,16 @@ export default function LoginPage() {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300"
-              required
+              className={`mt-1 block w-full px-4 py-2 border ${
+                errors.email ? "border-red-500" : "border-gray-300"
+              } rounded-lg text-gray-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300`}
             />
-          </div>
-          <div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
             <label
               htmlFor="password"
               className="block text-sm font-medium text-gray-700"
@@ -71,14 +113,15 @@ export default function LoginPage() {
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300"
-              required
+              className={`mt-1 block w-full px-4 py-2 border ${
+                errors.password ? "border-red-500" : "border-gray-300"
+              } rounded-lg shadow-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300`}
             />
-          </div>
+          </motion.div>
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-300"
+            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:cursor-pointer hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-300"
           >
             {loading ? (
               <div className="flex items-center justify-center">
@@ -118,7 +161,7 @@ export default function LoginPage() {
             Sign Up
           </a>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 }

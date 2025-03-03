@@ -1,21 +1,42 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchTickets } from "@/src/redux/slices/ticketSlice";
-import { logout } from "@/src/redux/slices/authSlice"; // Import logout action
+import {
+  fetchTickets,
+  createTicket,
+  updateTicketStatus,
+} from "@/src/redux/slices/ticketSlice";
+import { logout } from "@/src/redux/slices/authSlice";
 import { useRouter } from "next/navigation";
+import TicketModal from "@/components/TicketModal";
 
 export default function Dashboard() {
   const dispatch = useDispatch();
   const { tickets, loading } = useSelector((state) => state.tickets);
-  const { user } = useSelector((state) => state.auth); // Access the user from auth state
   const [search, setSearch] = useState("");
   const [filteredTickets, setFilteredTickets] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newTicket, setNewTicket] = useState({ title: "", description: "" });
+  const [userData, setUserData] = useState(null); // Store user data safely
+
   const router = useRouter();
+
+  // Function to decode JWT safely on the client side
+  const parseJwt = (token) => {
+    try {
+      if (!token) return null;
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const jsonPayload = decodeURIComponent(escape(window.atob(base64)));
+      return JSON.parse(jsonPayload);
+    } catch (error) {
+      console.error("Error parsing JWT:", error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     dispatch(fetchTickets());
-    console.log("tickets", dispatch(fetchTickets())); // Debugging
   }, [dispatch]);
 
   useEffect(() => {
@@ -28,29 +49,67 @@ export default function Dashboard() {
     }
   }, [search, tickets]);
 
-  const openTickets =
-    tickets?.filter((ticket) => ticket.status === "open").length || 0;
-  const closedTickets =
-    tickets?.filter((ticket) => ticket.status === "closed").length || 0;
+  useEffect(() => {
+    // Ensure this only runs on the client
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      const decodedUser = token ? parseJwt(token) : null;
+      setUserData(decodedUser);
+    }
+  }, []); // Run once when the component mounts
+
+  const openTickets = tickets?.filter(
+    (t) => t.status.toLowerCase() === "open"
+  ).length;
+  const closedTickets = tickets?.filter(
+    (t) => t.status.toLowerCase() === "closed"
+  ).length;
 
   const handleLogout = () => {
-    dispatch(logout()); // Dispatch logout action
+    dispatch(logout());
     router.push("/login");
   };
 
+  const handleCreateTicket = () => {
+    dispatch(createTicket(newTicket));
+    setNewTicket({ title: "", description: "" });
+    setIsModalOpen(false);
+  };
+
+  const handleStatusChange = (ticketId, status) => {
+    dispatch(updateTicketStatus({ ticketId, status }));
+  };
+
+  const userTickets =
+    userData?.role === "admin"
+      ? tickets
+      : tickets.filter((ticket) => ticket.user === userData?._id);
+
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-3xl font-bold">Dashboard</h1>
+      <header className="flex items-center justify-between">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <section className="flex flex-col lg:flex-row items-start lg:items-center">
+          <div className="text-lg font-semibold text-gray-700">
+            {userData ? `Welcome, ${userData.role}` : "Loading..."}
+          </div>
+          {userData?.role !== "admin" && (
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="bg-blue-500 text-white py-2 px-4 rounded-md mr-3 hover:bg-blue-700"
+            >
+              Add Ticket
+            </button>
+          )}
+          <button
+            onClick={handleLogout}
+            className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-700"
+          >
+            Logout
+          </button>
+        </section>
+      </header>
 
-      {/* Logout Button */}
-      <button
-        onClick={handleLogout}
-        className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-700"
-      >
-        Logout
-      </button>
-
-      {/* Ticket Summary Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white shadow-lg rounded-lg p-4">
           <h3 className="text-lg font-semibold text-black">Total Tickets</h3>
@@ -68,7 +127,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Search Input */}
       <input
         type="text"
         placeholder="Search tickets..."
@@ -77,7 +135,6 @@ export default function Dashboard() {
         className="border rounded-md p-2 w-full md:w-1/3"
       />
 
-      {/* Tickets Table */}
       <div className="border rounded-lg overflow-hidden">
         {loading ? (
           <div className="p-6 text-center">Loading tickets...</div>
@@ -88,6 +145,9 @@ export default function Dashboard() {
                 <th className="border p-3 text-left">Title</th>
                 <th className="border p-3 text-left">Description</th>
                 <th className="border p-3 text-left">Status</th>
+                {userData?.role === "admin" && (
+                  <th className="border p-3 text-left">Actions</th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -95,23 +155,44 @@ export default function Dashboard() {
                 filteredTickets.map((ticket) => (
                   <tr key={ticket._id} className="border-b hover:bg-gray-50">
                     <td className="border p-3 text-black">{ticket.title}</td>
-                    <td className="border p-3 text-black ">
+                    <td className="border p-3 text-black">
                       {ticket.description}
                     </td>
                     <td
                       className={`border p-3 font-semibold ${
-                        ticket.status === "open"
+                        ticket.status.toLowerCase() === "open"
                           ? "text-green-600"
                           : "text-red-600"
                       }`}
                     >
                       {ticket.status}
                     </td>
+                    {userData?.role === "admin" && (
+                      <td className="border p-3">
+                        <button
+                          onClick={() => handleStatusChange(ticket._id, "open")}
+                          className="bg-green-500 text-white py-1 px-2 rounded-md mr-2 hover:bg-green-700"
+                        >
+                          Open
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleStatusChange(ticket._id, "closed")
+                          }
+                          className="bg-red-500 text-white py-1 px-2 rounded-md hover:bg-red-700"
+                        >
+                          Close
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="3" className="text-center text-gray-500 p-4">
+                  <td
+                    colSpan={userData?.role === "admin" ? 4 : 3}
+                    className="text-center text-gray-500 p-4"
+                  >
                     No tickets found
                   </td>
                 </tr>
@@ -120,6 +201,14 @@ export default function Dashboard() {
           </table>
         )}
       </div>
+
+      <TicketModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={handleCreateTicket}
+        newTicket={newTicket}
+        setNewTicket={setNewTicket}
+      />
     </div>
   );
 }

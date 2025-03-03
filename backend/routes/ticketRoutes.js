@@ -21,11 +21,12 @@ router.post("/", authMiddleware, async (req, res) => {
 });
 
 // Get Tickets
+// Get Tickets
 router.get("/", authMiddleware, async (req, res) => {
   const tickets =
     req.user.role === "admin"
-      ? await Ticket.find()
-      : await Ticket.find({ user: req.user.id });
+      ? await Ticket.find() // Admin can see all tickets
+      : await Ticket.find({ user: req.user.id }); // Regular user can see only their tickets
   res.json(tickets);
 });
 

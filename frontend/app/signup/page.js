@@ -1,15 +1,17 @@
 "use client"; // Ensure the component runs on the client side
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { signupUser } from "@/src/redux/slices/authSlice"; // Make sure to add a signup action in your Redux slice
+import { signupUser } from "@/src/redux/slices/authSlice"; // Ensure to add a signup action in your Redux slice
 import { useRouter } from "next/navigation";
-import toast, { Toaster } from "react-hot-toast"; // Import hot-toast
+import toast from "react-hot-toast"; // Import hot-toast
+import { motion } from "framer-motion";
 
 export default function SignupPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState(""); // Optional: You can add a dropdown or input to select the role if needed
+  const [role, setRole] = useState("user"); // State for role selection
+  const [errors, setErrors] = useState({});
   const dispatch = useDispatch();
   const router = useRouter();
 
@@ -21,13 +23,44 @@ export default function SignupPage() {
       toast.success("Signup successful! Redirecting..."); // Success toast
       setTimeout(() => {
         router.push("/dashboard");
-      }, 1500); // Small delay for better UX
+      }, 500); // Small delay for better UX
     }
   }, [token, router]);
 
+  const validateInputs = () => {
+    let errors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!password.trim()) {
+      errors.password = "Password is required";
+      toast.error("Password is required");
+    } else if (password.length < 6) {
+      errors.password = "Password must be at least 6 characters long";
+      toast.error("Password must be at least 6 characters long");
+    }
+
+    if (!email.trim()) {
+      errors.email = "Email is required";
+      toast.error("Email is required");
+    } else if (!emailRegex.test(email)) {
+      errors.email = "Invalid email format";
+      toast.error("Invalid email format");
+    }
+
+    if (!name.trim()) {
+      errors.name = "Name is required";
+      toast.error("Name is required");
+    }
+
+    setErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = await dispatch(signupUser({ name, email, password, role }));
+    if (!validateInputs()) return;
+
+    const result = await dispatch(signupUser({ name, email, password, role })); // Include role
 
     if (signupUser.fulfilled.match(result)) {
       toast.success("Signup successful! Redirecting...");
@@ -40,12 +73,21 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-md transform transition-all hover:scale-105">
+      <motion.div
+        className="bg-white rounded-lg shadow-2xl p-8 w-full max-w-md transform transition-all"
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
           Create an Account
         </h1>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
             <label
               htmlFor="name"
               className="block text-sm font-medium text-gray-700"
@@ -58,11 +100,16 @@ export default function SignupPage() {
               placeholder="Enter your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300"
-              required
+              className={`mt-1 block w-full px-4 py-2 border ${
+                errors.name ? "border-red-500" : "border-gray-300"
+              } rounded-lg shadow-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300`}
             />
-          </div>
-          <div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
             <label
               htmlFor="email"
               className="block text-sm font-medium text-gray-700"
@@ -75,11 +122,16 @@ export default function SignupPage() {
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300"
-              required
+              className={`mt-1 block w-full px-4 py-2 border ${
+                errors.email ? "border-red-500" : "border-gray-300"
+              } rounded-lg shadow-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300`}
             />
-          </div>
-          <div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+          >
             <label
               htmlFor="password"
               className="block text-sm font-medium text-gray-700"
@@ -92,15 +144,39 @@ export default function SignupPage() {
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300"
-              required
+              className={`mt-1 block w-full px-4 py-2 border ${
+                errors.password ? "border-red-500" : "border-gray-300"
+              } rounded-lg shadow-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300`}
             />
-          </div>
+          </motion.div>
+
+          {/* Role Selection Dropdown */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.8 }}
+          >
+            <label
+              htmlFor="role"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Role
+            </label>
+            <select
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-300"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+          </motion.div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-300"
+            className="w-full bg-blue-600 hover:cursor-pointer text-white py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-300"
           >
             {loading ? (
               <div className="flex items-center justify-center">
@@ -145,7 +221,7 @@ export default function SignupPage() {
             Login
           </a>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 }
