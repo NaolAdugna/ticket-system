@@ -17,11 +17,10 @@ export default function Dashboard() {
   const [filteredTickets, setFilteredTickets] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTicket, setNewTicket] = useState({ title: "", description: "" });
-  const [userData, setUserData] = useState(null); // Store user data safely
+  const [userData, setUserData] = useState(null);
 
   const router = useRouter();
 
-  // Function to decode JWT safely on the client side
   const parseJwt = (token) => {
     try {
       if (!token) return null;
@@ -50,13 +49,12 @@ export default function Dashboard() {
   }, [search, tickets]);
 
   useEffect(() => {
-    // Ensure this only runs on the client
     if (typeof window !== "undefined") {
       const token = localStorage.getItem("token");
       const decodedUser = token ? parseJwt(token) : null;
       setUserData(decodedUser);
     }
-  }, []); // Run once when the component mounts
+  }, []);
 
   const openTickets = tickets?.filter(
     (t) => t.status.toLowerCase() === "open"
@@ -76,8 +74,13 @@ export default function Dashboard() {
     setIsModalOpen(false);
   };
 
-  const handleStatusChange = (ticketId, status) => {
-    dispatch(updateTicketStatus({ ticketId, status }));
+  const handleStatusChange = async (ticketId, status) => {
+    try {
+      await dispatch(updateTicketStatus({ ticketId, status })).unwrap();
+      dispatch(fetchTickets()); // Refresh the tickets list
+    } catch (error) {
+      console.error("Failed to update ticket status:", error);
+    }
   };
 
   const userTickets =
@@ -162,6 +165,8 @@ export default function Dashboard() {
                       className={`border p-3 font-semibold ${
                         ticket.status.toLowerCase() === "open"
                           ? "text-green-600"
+                          : ticket.status.toLowerCase() === "in progress"
+                          ? "text-[#ffc107]"
                           : "text-red-600"
                       }`}
                     >
@@ -170,16 +175,24 @@ export default function Dashboard() {
                     {userData?.role === "admin" && (
                       <td className="border p-3">
                         <button
-                          onClick={() => handleStatusChange(ticket._id, "open")}
-                          className="bg-green-500 text-white py-1 px-2 rounded-md mr-2 hover:bg-green-700"
+                          onClick={() => handleStatusChange(ticket._id, "Open")}
+                          className="bg-[#28a745] text-white py-1 px-2 rounded-md mr-2 hover:bg-green-700"
                         >
                           Open
                         </button>
                         <button
                           onClick={() =>
-                            handleStatusChange(ticket._id, "closed")
+                            handleStatusChange(ticket._id, "In Progress")
                           }
-                          className="bg-red-500 text-white py-1 px-2 rounded-md hover:bg-red-700"
+                          className="bg-[#ffc107] text-white py-1 px-2 rounded-md mr-2 hover:bg-yellow-500"
+                        >
+                          In Progress
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleStatusChange(ticket._id, "Closed")
+                          }
+                          className="bg-[#dc3545] text-white py-1 px-2 rounded-md hover:bg-red-700"
                         >
                           Close
                         </button>

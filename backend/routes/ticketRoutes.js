@@ -31,13 +31,32 @@ router.get("/", authMiddleware, async (req, res) => {
 });
 
 // Update Ticket (Admin)
+// Update Ticket (Admin)
 router.put("/:id", authMiddleware, adminMiddleware, async (req, res) => {
   try {
+    const { status } = req.body;
+
+    // Validate status field
+    if (!status) {
+      return res.status(400).json({ error: "Status is required." });
+    }
+
+    const validStatuses = ["Open", "In Progress", "Closed"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: "Invalid status value." });
+    }
+
+    // Find and update the ticket's status
     const updatedTicket = await Ticket.findByIdAndUpdate(
       req.params.id,
-      req.body,
-      { new: true }
+      { status }, // Only update the status field
+      { new: true, runValidators: true }
     );
+
+    if (!updatedTicket) {
+      return res.status(404).json({ error: "Ticket not found." });
+    }
+
     res.json(updatedTicket);
   } catch (error) {
     res.status(500).json({ error: error.message });

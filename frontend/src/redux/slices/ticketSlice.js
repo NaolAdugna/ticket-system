@@ -41,12 +41,14 @@ export const createTicket = createAsyncThunk(
 );
 
 // Update ticket status
+// Update ticket status
 export const updateTicketStatus = createAsyncThunk(
   "tickets/updateTicketStatus",
   async ({ ticketId, status }, { rejectWithValue, getState }) => {
     try {
       const token = getState().auth.token;
-      const response = await instance.patch(
+      const response = await instance.put(
+        // Use PUT instead of PATCH
         `/tickets/${ticketId}`,
         { status },
         {
