@@ -2,7 +2,7 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-
+import { sendWelcomeEmail } from "../utils/emailService.js";
 const router = express.Router();
 
 // Signup
@@ -13,6 +13,7 @@ router.post("/signup", async (req, res) => {
   try {
     const user = new User({ name, email, password: hashedPassword, role });
     await user.save();
+    sendWelcomeEmail(email, name);
     res.status(201).json({ message: "User registered" });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -36,6 +37,7 @@ router.post("/login", async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
+
     res.json({ token, role: user.role });
   } catch (error) {
     res.status(500).json({ error: error.message });
