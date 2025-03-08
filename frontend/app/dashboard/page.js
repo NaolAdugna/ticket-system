@@ -59,6 +59,9 @@ export default function Dashboard() {
   const openTickets = tickets?.filter(
     (t) => t.status.toLowerCase() === "open"
   ).length;
+  const inProgressTickets = tickets?.filter(
+    (t) => t.status.toLowerCase() === "in progress"
+  ).length;
   const closedTickets = tickets?.filter(
     (t) => t.status.toLowerCase() === "closed"
   ).length;
@@ -89,132 +92,117 @@ export default function Dashboard() {
       : tickets.filter((ticket) => ticket.user === userData?._id);
 
   return (
-    <div className="p-6 space-y-6">
-      <header className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <section className="flex flex-col lg:flex-row items-start lg:items-center">
+    <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
+      {/* Header */}
+      <header className="flex items-center justify-between bg-white p-6 rounded-lg shadow-md">
+        <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
+        <section className="flex flex-col lg:flex-row items-start lg:items-center gap-4">
           <div className="text-lg font-semibold text-gray-700">
             {userData ? `Welcome, ${userData.role}` : "Loading..."}
           </div>
           {userData?.role !== "admin" && (
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-blue-500 text-white py-2 px-4 rounded-md mr-3 hover:bg-blue-700"
+              className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition-all"
             >
               Add Ticket
             </button>
           )}
           <button
             onClick={handleLogout}
-            className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-700"
+            className="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-all"
           >
             Logout
           </button>
         </section>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white shadow-lg rounded-lg p-4">
-          <h3 className="text-lg font-semibold text-black">Total Tickets</h3>
-          <p className="text-2xl font-bold text-blue-600">{tickets.length}</p>
-        </div>
-        <div className="bg-white shadow-lg rounded-lg p-4">
+      {/* Status Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white shadow-lg rounded-lg p-6 text-center">
           <h3 className="text-lg font-semibold text-gray-600">Open Tickets</h3>
-          <p className="text-2xl font-bold text-green-600">{openTickets}</p>
+          <p className="text-4xl font-bold text-green-600">{openTickets}</p>
         </div>
-        <div className="bg-white shadow-lg rounded-lg p-4">
-          <h3 className="text-lg font-semibold text-gray-600">
-            Closed Tickets
-          </h3>
-          <p className="text-2xl font-bold text-red-600">{closedTickets}</p>
+        <div className="bg-white shadow-lg rounded-lg p-6 text-center">
+          <h3 className="text-lg font-semibold text-gray-600">In Progress</h3>
+          <p className="text-4xl font-bold text-yellow-500">{inProgressTickets}</p>
+        </div>
+        <div className="bg-white shadow-lg rounded-lg p-6 text-center">
+          <h3 className="text-lg font-semibold text-gray-600">Closed Tickets</h3>
+          <p className="text-4xl font-bold text-red-600">{closedTickets}</p>
         </div>
       </div>
 
+      {/* Search Bar */}
       <input
         type="text"
         placeholder="Search tickets..."
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="border rounded-md p-2 w-full md:w-1/3"
+        className="border rounded-md p-3 w-full md:w-1/3 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
-      <div className="border rounded-lg overflow-hidden">
+      {/* Tickets Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
-          <div className="p-6 text-center">Loading tickets...</div>
-        ) : (
-          <table className="w-full border-collapse bg-white shadow-lg">
-            <thead className="bg-gray-500">
-              <tr>
-                <th className="border p-3 text-left">Title</th>
-                <th className="border p-3 text-left">Description</th>
-                <th className="border p-3 text-left">Status</th>
+          <div className="col-span-full text-center text-gray-500">
+            Loading tickets...
+          </div>
+        ) : filteredTickets.length > 0 ? (
+          filteredTickets.map((ticket) => (
+            <div
+              key={ticket._id}
+              className="bg-white shadow-lg rounded-lg p-6 space-y-4 hover:shadow-xl transition-shadow"
+            >
+              <h3 className="text-xl font-bold text-gray-800">{ticket.title}</h3>
+              <p className="text-gray-600">{ticket.description}</p>
+              <div className="flex items-center justify-between">
+                <span
+                  className={`font-semibold ${
+                    ticket.status.toLowerCase() === "open"
+                      ? "text-green-600"
+                      : ticket.status.toLowerCase() === "in progress"
+                      ? "text-yellow-500"
+                      : "text-red-600"
+                  }`}
+                >
+                  {ticket.status}
+                </span>
                 {userData?.role === "admin" && (
-                  <th className="border p-3 text-left">Actions</th>
-                )}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTickets.length > 0 ? (
-                filteredTickets.map((ticket) => (
-                  <tr key={ticket._id} className="border-b hover:bg-gray-50">
-                    <td className="border p-3 text-black">{ticket.title}</td>
-                    <td className="border p-3 text-black">
-                      {ticket.description}
-                    </td>
-                    <td
-                      className={`border p-3 font-semibold ${
-                        ticket.status.toLowerCase() === "open"
-                          ? "text-green-600"
-                          : ticket.status.toLowerCase() === "in progress"
-                          ? "text-[#ffc107]"
-                          : "text-red-600"
-                      }`}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleStatusChange(ticket._id, "Open")}
+                      className="bg-green-500 text-white py-1 px-3 rounded-md hover:bg-green-600 transition-all"
                     >
-                      {ticket.status}
-                    </td>
-                    {userData?.role === "admin" && (
-                      <td className="border p-3">
-                        <button
-                          onClick={() => handleStatusChange(ticket._id, "Open")}
-                          className="bg-[#28a745] text-white py-1 px-2 rounded-md mr-2 hover:bg-green-700"
-                        >
-                          Open
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleStatusChange(ticket._id, "In Progress")
-                          }
-                          className="bg-[#ffc107] text-white py-1 px-2 rounded-md mr-2 hover:bg-yellow-500"
-                        >
-                          In Progress
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleStatusChange(ticket._id, "Closed")
-                          }
-                          className="bg-[#dc3545] text-white py-1 px-2 rounded-md hover:bg-red-700"
-                        >
-                          Close
-                        </button>
-                      </td>
-                    )}
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan={userData?.role === "admin" ? 4 : 3}
-                    className="text-center text-gray-500 p-4"
-                  >
-                    No tickets found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                      Open
+                    </button>
+                    <button
+                      onClick={() =>
+                        handleStatusChange(ticket._id, "In Progress")
+                      }
+                      className="bg-yellow-500 text-white py-1 px-3 rounded-md hover:bg-yellow-600 transition-all"
+                    >
+                      In Progress
+                    </button>
+                    <button
+                      onClick={() => handleStatusChange(ticket._id, "Closed")}
+                      className="bg-red-500 text-white py-1 px-3 rounded-md hover:bg-red-600 transition-all"
+                    >
+                      Close
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="col-span-full text-center text-gray-500">
+            No tickets found
+          </div>
         )}
       </div>
 
+      {/* Ticket Modal */}
       <TicketModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

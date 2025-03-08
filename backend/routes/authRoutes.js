@@ -13,7 +13,7 @@ router.post("/signup", async (req, res) => {
   try {
     const user = new User({ name, email, password: hashedPassword, role });
     await user.save();
-    sendWelcomeEmail(email, name);
+    sendWelcomeEmail(email,name)
     res.status(201).json({ message: "User registered" });
   } catch (error) {
     res.status(400).json({ error: error.message });
@@ -38,10 +38,11 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    res.json({ token, role: user.role });
+    res.json({ token, role: user.role});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
 
 export default router;

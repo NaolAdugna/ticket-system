@@ -64,6 +64,9 @@ export default function SignupPage() {
 
     if (signupUser.fulfilled.match(result)) {
       toast.success("Signup successful! Redirecting...");
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 500); // Small delay for better UX
     } else {
       toast.error(
         result.payload?.message || "Signup failed! Please try again."

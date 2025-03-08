@@ -1,4 +1,4 @@
-// File: C:\Users\HP\OneDrive\Desktop\naol_folder\ticketing-system\frontend\app\signup\page.js
+// File: /workspaces/ticket-system/frontend/app/signup/page.js
 import * as entry from '../../../../app/signup/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

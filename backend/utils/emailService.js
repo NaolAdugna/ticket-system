@@ -8,7 +8,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export const sendWelcomeEmail = async (toEmail, name) => {
   try {
     const response = await resend.emails.send({
-      from: "contact@naoladugna.com",
+      from: "contact@naoladugna.com", 
       to: toEmail,
       subject: "Welcome to Our Platform!",
       html: `
